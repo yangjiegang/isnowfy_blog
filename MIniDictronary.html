@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="Keywords" content="blog"/>
+    <meta name="Description" content="blog"/>
+    <title>Simple</title>
+    <link rel="shortcut icon" href="/static/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div class="main">
+    <div class="header">
+    	<ul id="pages">
+            <li><a href="/">home</a></li>
+            <li><a href="/#/tags">tags</a></li>
+            <li><a href="/#/archive">archive</a></li>
+    	</ul>
+    </div>
+	<div class="wrap-header">
+	<h1>
+    <a href="/" id="title"></a>
+	</h1>
+	</div>
+<div id="md" style="display: none;">
+<!-- markdown -->
+#coding:utf-8
+import sqlite3
+import wx
+import sys
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
+def dict():
+	conn=sqlite3.connect('D:\\temp\\Dict.db')
+	cur=conn.cursor()
+	'''cur.execute('drop table dict')
+	cur.execute('create table dict(id int, eng varchar, chi varchar, details varchar)')
+	cur.execute('insert into dict (id,eng,chi,details) values (1,"make","制作","制作，制造；to create sth.")')
+	cur.execute('insert into dict (id,eng,chi,details) values (2,"get","得到","得到，获得；achieve")')
+	cur.execute('insert into dict (id,eng,chi,details) values (3,"take","拿着","拿着，带着；bring & hold")')
+	cur.execute('insert into dict (id,eng,chi,details) values (4,"add","增加","增加，加入；plus")')'''
+	cur.execute('select * from dict')
+	global li,line,english,chinese,more
+	li=cur.fetchall()
+	english=[]
+	chinese=[]
+	more=[]
+	for line in li:
+		english.append(line[1])
+		chinese.append(line[2])
+		more.append(line[3])
+		print english,chinese,line,more
+	conn.commit()
+	conn.close()
+
+class frame1(wx.Frame):
+	def __init__(self,superion):
+		wx.Frame.__init__(self,parent=superion,title='MiniDictonary',size=(400,300))
+		panel=wx.Panel(self,-1)
+		panel.SetBackgroundColour('Green')
+		#self.btn1=wx.Button(panel,label='GO',pos=(50,200),size=(80,40))
+		#self.Bind(wx.EVT_BUTTON,self.go,self.btn1)
+		self.btn2=wx.Button(panel,label='OK',pos=(225,200),size=(80,40))
+		self.Bind(wx.EVT_BUTTON,self.ok,self.btn2)
+		#self.label1=wx.StaticText(panel,-1,'Question is: ',(50,50))
+		#self.label3=wx.StaticText(panel,-1,'Your Answer: ',(50,100))
+		self.label1=wx.StaticText(panel,-1,'Result: ',(50,70))
+		self.label3=wx.StaticText(panel,-1,'Null... ',pos=(150,70))
+		self.label2=wx.StaticText(panel,-1,'Input : ',(50,20))
+		self.text=wx.TextCtrl(panel, value='......  ',pos=(150,20),size=(175,-1))
+		self.text.SetInsertionPoint(0)
+		self.label4=wx.StaticText(panel,-1,'More:   ',pos=(50,120))
+		self.label5=wx.StaticText(panel,-1,'Null... ',pos=(150,120))
+		#self.Mes1=wx.wx.MessageDialog(self,'Right!','result')
+		#self.Mes2=wx.wx.MessageDialog(self,'Wrong...','result')
+		
+	#def go(self,event):
+		#dict()
+		#self.label2.SetLabel(str(line[1]))
+	def ok(self,event):
+		dict()
+		into = self.text.GetValue()
+		if into in chinese:
+			self.label3.SetLabel(english[chinese.index(into)])
+			self.label5.SetLabel(more[chinese.index(into)])
+			#self.Mes1.ShowModal()
+		elif into in english:
+			self.label3.SetLabel(chinese[english.index(into)])
+			self.label5.SetLabel(more[english.index(into)])
+		else:
+			self.label3.SetLabel('NULL...')
+			self.label5.SetLabel('NULL...')
+			#self.Mes2.ShowModal()
+
+if __name__=="__main__":
+	app=wx.App()
+	frame2=frame1(None)
+	frame2.Show()
+	app.MainLoop()
+<!-- markdown end -->
+</div>
+<div class="entry" id="main">
+<!-- content -->
+
+<!-- content end -->
+</div>
+<br>
+<br>
+    <div id="disqus_thread"></div>
+	<div class="footer">
+		<p>© Copyright 2014 by isnowfy, Designed by isnowfy</p>
+	</div>
+</div>
+<script src="main.js"></script>
+<script id="content" type="text/mustache">
+    <h1>{{title}}</h1>
+    <div class="tag">
+    {{date}}
+    {{#tags}}
+    <a href="/#/tag/{{name}}">#{{name}}</a>
+    {{/tags}}
+    </div>
+</script>
+<script id="pagesTemplate" type="text/mustache">
+    {{#pages}}
+    <li>
+        <a href="{{path}}">{{title}}</a>
+    </li>
+    {{/pages}}
+</script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "main.json",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#title").html(data.name);
+            var pagesTemplate = Hogan.compile($("#pagesTemplate").html());
+            var pagesHtml = pagesTemplate.render({"pages": data.pages});
+            $("#pages").append(pagesHtml);
+            //path
+            var path = "MIniDictronary.html";
+            //path end
+            var now = 0;
+            for (var i = 0; i < data.posts.length; ++i)
+                if (path == data.posts[i].path)
+                    now = i;
+            var post = data.posts[now];
+            var tmp = post.tags.split(" ");
+            var tags = [];
+            for (var i = 0; i < tmp.length; ++i)
+                if (tmp[i].length > 0)
+                    tags.push({"name": tmp[i]});
+            var contentTemplate = Hogan.compile($("#content").html());
+            var contentHtml = contentTemplate.render({"title": post.title, "tags": tags, "date": post.date});
+            $("#main").prepend(contentHtml);
+            if (data.disqus_shortname.length > 0) {
+                var disqus_shortname = data.disqus_shortname;
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            }
+        }
+    });
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ["\\(", "\\)"]], processEscapes: true}});
+</script>
+</body>
+</html>
