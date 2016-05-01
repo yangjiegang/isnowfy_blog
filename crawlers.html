@@ -1,0 +1,196 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="Keywords" content="blog"/>
+    <meta name="Description" content="blog"/>
+    <title>Simple</title>
+    <link rel="shortcut icon" href="/static/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div class="main">
+    <div class="header">
+    	<ul id="pages">
+            <li><a href="/">home</a></li>
+            <li><a href="/#/tags">tags</a></li>
+            <li><a href="/#/archive">archive</a></li>
+    	</ul>
+    </div>
+	<div class="wrap-header">
+	<h1>
+    <a href="/" id="title"></a>
+	</h1>
+	</div>
+<div id="md" style="display: none;">
+<!-- markdown -->
+##coding:utf-8
+import re
+import urllib.request
+import urllib
+import random
+
+def getCon(MyUrl):
+	MyUA=['Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Geck',
+		'safari 5.1 – Windows',
+		'IE 8.0',
+		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1'
+		'Firefox 4.0.1 – Windows',
+		'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+		'Opera 11.11 – Windows']
+	randomHeader=random.choice(MyUA)
+	Myheader={'User-Agent':randomHeader}
+	req=urllib.request.Request(url=MyUrl,headers=Myheader)
+	response=urllib.request.urlopen(req,timeout=200)
+	content=response.read()
+	contentZ=content.decode('UTF-8','ignore').encode('gb18030')
+	#print(content.decode('UTF-8','ignore').encode('gb18030'))
+	return content
+	response.close()
+
+'''
+<img class="BDE_Image" src="http://imgsrc.baidu.com/forum/w%3D580/
+sign=902aca99d739b6004dce0fbfd9513526/5908c93d70cf3bc71ad90496d300baa1cc112af4.jpg"
+ pic_ext="jpeg" changedsize="true" width="560" height="791">
+'''
+
+def getImg(info):
+	#regex = r'class="BDE_Image" src="(.+?\.jpg)"'
+	regex = r'<p><img src="(.+?)jpg" /></p>'
+	pet=re.compile(regex)#why?
+	imgLable=re.findall(pet,info)
+	i=0
+	for imgUrl in imgLable:
+		print(imgUrl)
+		urllib.request.urlretrieve(imgUrl,r'D://temp//pics//%s.jpg'%i)#why?
+		i+=1
+	return(imgLable)
+
+MyUrl=r'http://'+str(input('Enter a http link(tieba.baidu.com/p/2772656630): '))
+info=getCon(MyUrl)
+print(getImg(info))
+
+
+
+
+<!-- markdown end -->
+</div>
+<div class="entry" id="main">
+<!-- content -->
+<h2 id="codingutf8">coding:utf-8</h2>
+
+<p>import re
+import urllib.request
+import urllib
+import random</p>
+
+<p>def getCon(MyUrl):
+    MyUA=['Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Geck',
+        'safari 5.1 – Windows',
+        'IE 8.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1'
+        'Firefox 4.0.1 – Windows',
+        'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+        'Opera 11.11 – Windows']
+    randomHeader=random.choice(MyUA)
+    Myheader={'User-Agent':randomHeader}
+    req=urllib.request.Request(url=MyUrl,headers=Myheader)
+    response=urllib.request.urlopen(req,timeout=200)
+    content=response.read()
+    contentZ=content.decode('UTF-8','ignore').encode('gb18030')
+    #print(content.decode('UTF-8','ignore').encode('gb18030'))
+    return content
+    response.close()</p>
+
+<p>'''
+<img class="BDE_Image" src="http://imgsrc.baidu.com/forum/w%3D580/
+sign=902aca99d739b6004dce0fbfd9513526/5908c93d70cf3bc71ad90496d300baa1cc112af4.jpg" pic_ext="jpeg" changedsize="true" height="791" width="560">
+'''</p>
+
+<p>def getImg(info):
+    #regex = r'class="BDE_Image" src="(.+?.jpg)"'
+    regex = r'</p><p><img src="(.+?)jpg"></p>'
+    pet=re.compile(regex)#why?
+    imgLable=re.findall(pet,info)
+    i=0
+    for imgUrl in imgLable:
+        print(imgUrl)
+        urllib.request.urlretrieve(imgUrl,r'D://temp//pics//%s.jpg'%i)#why?
+        i+=1
+    return(imgLable)<p></p>
+
+<p>MyUrl=r'http://'+str(input('Enter a http link(tieba.baidu.com/p/2772656630): '))
+info=getCon(MyUrl)
+print(getImg(info))</p>
+<!-- content end -->
+</div>
+<br>
+<br>
+    <div id="disqus_thread"></div>
+	<div class="footer">
+		<p>© Copyright 2014 by isnowfy, Designed by isnowfy</p>
+	</div>
+</div>
+<script src="main.js"></script>
+<script id="content" type="text/mustache">
+    <h1>{{title}}</h1>
+    <div class="tag">
+    {{date}}
+    {{#tags}}
+    <a href="/#/tag/{{name}}">#{{name}}</a>
+    {{/tags}}
+    </div>
+</script>
+<script id="pagesTemplate" type="text/mustache">
+    {{#pages}}
+    <li>
+        <a href="{{path}}">{{title}}</a>
+    </li>
+    {{/pages}}
+</script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "main.json",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#title").html(data.name);
+            var pagesTemplate = Hogan.compile($("#pagesTemplate").html());
+            var pagesHtml = pagesTemplate.render({"pages": data.pages});
+            $("#pages").append(pagesHtml);
+            //path
+            var path = "crawlers.html";
+            //path end
+            var now = 0;
+            for (var i = 0; i < data.posts.length; ++i)
+                if (path == data.posts[i].path)
+                    now = i;
+            var post = data.posts[now];
+            var tmp = post.tags.split(" ");
+            var tags = [];
+            for (var i = 0; i < tmp.length; ++i)
+                if (tmp[i].length > 0)
+                    tags.push({"name": tmp[i]});
+            var contentTemplate = Hogan.compile($("#content").html());
+            var contentHtml = contentTemplate.render({"title": post.title, "tags": tags, "date": post.date});
+            $("#main").prepend(contentHtml);
+            if (data.disqus_shortname.length > 0) {
+                var disqus_shortname = data.disqus_shortname;
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            }
+        }
+    });
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ["\\(", "\\)"]], processEscapes: true}});
+</script>
+</body>
+</html>
